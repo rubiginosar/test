@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Choose</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style3.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <h1 class="h1">Choose the desired social media platform</h1>
+    <form action="{{ url_for('chose') }}" method="post" class="frm">
+        <ul class="wrapper">
+            <li class="icon fb">
+                <span class="name">Facebook</span>
+                <button type="submit" name="platform" value="Facebook"><i class="fab fa-facebook-f"></i></button>
+            </li>
+            <li class="icon tw">
+                <span class="name">Twitter</span>
+                <button type="submit" name="platform" value="Twitter"><i class="fab fa-twitter"></i></button>
+            </li>
+        </ul>
+    </form>
+</body>
+</html>

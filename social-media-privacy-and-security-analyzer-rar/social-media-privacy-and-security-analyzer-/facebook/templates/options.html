@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Security Tutorials</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    </head>
+    <body>
+        <nav id="nav">
+            <div class="navbar">
+                <div class="logo">
+                    <i class="fa-solid fa-unlock-keyhole"></i> SecurityCheck
+                </div>
+                <div class="links">
+                    <a href="{{ url_for('home') }}">HOME</a>
+                    <a href="{{ url_for('registration') }}">LOGIN</a>
+                </div>
+            </div>
+        </nav>
+        <div class="options">
+            <div class="opts">
+                <div class="opt1">
+                    <h4>Activate Two-Factor Authentication</h4>
+                    <p>Enhance your account security by enabling 2FA. This adds an extra layer of protection by requiring a verification code in addition <br> to your password.</p>
+                </div>
+                <div class="opt2">
+                    <h4>Create a Strong Password</h4>
+                    <p>Ensure the security of your account by using a robust password. Combine uppercase and lowercase letters, numbers, and special characters for better protection.</p>
+                </div>
+            </div>
+            <div class="opts">
+                <div class="opt3">
+                    <h4>Update Passwords Regularly</h4>
+                    <p>Periodically changing your passwords helps prevent unauthorized access. Avoid using the same password across multiple<br> platforms to enhance security.</p>
+                </div>
+                <div class="opt4">
+                    <h4>Beware of Phishing Attempts</h4>
+                    <p>Stay vigilant against phishing attacks. Avoid clicking on suspicious links and never share sensitive information in response to unsolicited messages.</p>
+                </div>
+            </div>
+            <div class="home">
+                <p>To learn more about securing your social media accounts, <a href="{{ url_for('registration') }}">LOGIN</a></p>
+            </div>
+        <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    </body>
+</html>

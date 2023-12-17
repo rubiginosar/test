@@ -1,0 +1,85 @@
+CREATE DATABASE projet1;
+USE projet1;
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    password VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE devices (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    date TEXT,
+    device TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE likes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    date TEXT,
+    like_action TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE logins (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    date TEXT,
+    login_action TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE posts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    date TEXT,
+    post_content TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE tags (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    date TEXT,
+    tag_content TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE searches (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    date TEXT,
+    search TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE tweets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    username VARCHAR(255),
+    postdate TEXT,
+    tweetText TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE twt_session (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    date TEXT,
+    device TEXT,
+    location TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE menaces (
+    menace_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    table_name VARCHAR(255),
+    date TEXT,
+    comment TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
