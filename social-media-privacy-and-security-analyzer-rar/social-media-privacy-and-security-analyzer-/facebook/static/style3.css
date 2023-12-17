@@ -17,14 +17,6 @@ html,body{
    background-color: aliceblue;
 }
 
-
-
-/* .wrapper {
-    display: inline-flex;
-    list-style:none;
-    margin-top: -220px;
-}  */
-
 .wrapper {
     display: flex;
     list-style: none;
@@ -32,9 +24,6 @@ html,body{
     align-items: center; /* Vertically align */
     margin-bottom: -200px; 
 }
-
-
-
 .wrapper i{
     font-size: 25px;
 }
@@ -117,5 +106,8 @@ html,body{
 }
 
 .h1 {
-    margin-top: 2200px; /* Adjust the top margin as needed */
+    margin-top: 100px; /* Adjust the top margin as needed */
+}
+.frm{
+    margin-top: 200px; 
 }

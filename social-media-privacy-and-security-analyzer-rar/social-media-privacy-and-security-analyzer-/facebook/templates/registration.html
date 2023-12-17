@@ -21,6 +21,9 @@
         <form action="/registration" method="POST" class ="form1">
             <div class="box1">
                 <h2>Login</h2>
+                {% if error %}
+                    <p style="color: red;">{{ error }}</p>
+                {% endif %}
                 <div class="input">
                     <span class="icon"><ion-icon name="mail-outline"></ion-icon></span>
                     <input type="email" id="email" name="email" placeholder="Email" required>

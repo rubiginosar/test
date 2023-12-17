@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blocked</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> 
+
+</head>
+<body>
+    <div class="centered-container">
+        <div class="blocked-page">
+            <h2>You Are Temporarily Blocked</h2>
+            <p>Sorry, you have exceeded the maximum number of login attempts. Please try again later.</p>
+            <!-- You can add additional information or instructions here -->
+        </div>
+    </div>
+
+    <script>
+        // Function to redirect to home.html after a delay
+        function redirectHome() {
+            setTimeout(function() {
+                window.location.href = '{{ url_for("home") }}'; // Redirect to the home page
+            }, 30000); // 60 seconds delay (60000 milliseconds)
+        }
+
+        // Call the redirection function when the page loads
+        redirectHome();
+    </script>
+</body>
+</html>

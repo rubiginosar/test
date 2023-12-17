@@ -66,13 +66,15 @@ def home():
 # @app.route('/registration')
 # def registration():
 #     return render_template('registration.html')
+from flask import session
+
 @app.route('/registration', methods=['GET', 'POST'])
 def registration():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
 
-        # Check if the user exists
+        # Check if the user exists and fetch their data
         with mysql.connection.cursor() as cursor:
             cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
             user = cursor.fetchone()
@@ -82,9 +84,24 @@ def registration():
                 session['user'] = {'email': email, 'user_id': user_id}
                 return render_template('Login.html')  # Redirect to the dashboard after successful login
 
-        # Invalid credentials or user does not exist
+            # Invalid credentials or user does not exist
             else:
-                return "Invalid email or password. Please try again or register."
+                # Check if 'login_attempts' is set in the session
+                if 'login_attempts' not in session:
+                    session['login_attempts'] = 1
+                else:
+                    session['login_attempts'] += 1
+
+                # Block the user for a minute after three unsuccessful attempts
+                if session['login_attempts'] >= 3:
+                    session['blocked'] = True  # Set a flag to indicate the user is blocked
+                    session.modified = True  # Save changes to the session
+                    session.pop('login_attempts', None)
+                    # Redirect the user or show a message indicating the block
+                    return render_template('blocked.html', blocked_message= "Sorry, you are temporarily blocked. Please try again later.")
+
+                # Show error message for invalid credentials or insufficient attempts
+                return render_template('registration.html', error="Invalid email or password. Please try again or register.")
 
     return render_template('registration.html')
 
@@ -127,7 +144,7 @@ def register():
         if user:
             # User already exists with the given email
             cur.close()
-            return "User with this email already exists!"
+            return render_template('register.html', error="User with this email already exists!")
         else:
             cur.execute("INSERT INTO users (username, email, password) VALUES (%s, %s, %s)", (username, email, hashed_password))
             mysql.connection.commit()
@@ -138,10 +155,12 @@ def register():
                 user_id = user[0]  # Assuming user_id is in the first position
                 session['user'] = {'email': email, 'user_id': user_id}
                 # session['user'] = {'email': email}
-                return render_template('chose.html')  # Redirect to login page after registration
+                return render_template('Login.html')  # Redirect to login page after registration
             else:
-                return "Registration failed. User not found."
-    return render_template('Login.html')
+                # Render register template with an error message
+                return render_template('register.html', error="Registration failed. User not found.")
+    return render_template('register.html')
+
 
 
 @app.route('/options')
@@ -172,7 +191,7 @@ def dashboard1():
     facebook_menaces_query = """
     SELECT date, comment, table_name
     FROM projet1.menaces
-    WHERE table_name IN ('comments', 'likes', 'post', 'tag', 'search')
+    WHERE table_name IN ('comments', 'likes', 'post', 'tag')
     AND user_id = %s
     ORDER BY menace_id DESC
     LIMIT 15
@@ -767,54 +786,54 @@ def analyze_facebook():
                     cur.execute("INSERT INTO tags (user_id, date, tag_content) VALUES (%s, %s, %s)",
                     (user_id, f'{date}', comment_text))
                     mysql.connection.commit()
-            time.sleep(5)
-            driver.get('https://www.facebook.com/100060663511589/allactivity?activity_history=false&category_key=SEARCH&manage_mode=false&should_load_landing_page=false')
-            time.sleep(2)
-            print("Navigated to Privacy Checkup")
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(2)
-            date_elements = driver.find_elements('css selector', 'span.x1lliihq.x6ikm8r.x10wlt62.x1n2onr6.x1j85h84')
+#             time.sleep(5)
+#             driver.get('https://www.facebook.com/100060663511589/allactivity?activity_history=false&category_key=SEARCH&manage_mode=false&should_load_landing_page=false')
+#             time.sleep(2)
+#             print("Navigated to Privacy Checkup")
+#             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+#             time.sleep(2)
+#             date_elements = driver.find_elements('css selector', 'span.x1lliihq.x6ikm8r.x10wlt62.x1n2onr6.x1j85h84')
 
-# Extract text from all date elements
-            dates = [date_element.text.strip() for date_element in date_elements]
+# # Extract text from all date elements
+#             dates = [date_element.text.strip() for date_element in date_elements]
 
-# Write extracted data to comments.txt file
-            with open('search.txt', 'w', encoding='utf-8') as file:
-                file.write('\n'.join(dates))
+# # Write extracted data to comments.txt file
+#             with open('search.txt', 'w', encoding='utf-8') as file:
+#                 file.write('\n'.join(dates))
 
-            with open('search.txt', 'r', encoding='utf-8') as file:
-                data = file.read()
+#             with open('search.txt', 'r', encoding='utf-8') as file:
+#                 data = file.read()
 
-# Split the text into date-comment pairs
-                comments = re.findall(r'(\w+ \d{1,2}, \d{4})\n([\s\S]*?)(?=\w+ \d{1,2}, \d{4}\n|\Z)', data)
+# # Split the text into date-comment pairs
+#                 comments = re.findall(r'(\w+ \d{1,2}, \d{4})\n([\s\S]*?)(?=\w+ \d{1,2}, \d{4}\n|\Z)', data)
 
-# Organize comments by date
-                comments_data = {}
-                current_date = None
+# # Organize comments by date
+#                 comments_data = {}
+#                 current_date = None
 
-                for comment in comments:
-                    date = comment[0]
-                    comment_text = comment[1].strip().split('\n')  # Split multiple comments into a list
+#                 for comment in comments:
+#                     date = comment[0]
+#                     comment_text = comment[1].strip().split('\n')  # Split multiple comments into a list
     
-                    if current_date == date:
-                        comments_data[date].extend(comment_text)
-                    else:
-                        current_date = date
-                        comments_data[date] = comment_text
-                cur = mysql.connection.cursor()
-                email = session['user']['email']
-                cur.execute("SELECT id FROM users WHERE email = %s", (email,))
-                user_id = cur.fetchone()[0]
-                for date, comments_list in comments_data.items():
-                    for comment_text in comments_list:
-                        if isinstance(comment_text, list):  # Check if comment_text is a list
-                            for text in comment_text:
-                                cur.execute("INSERT INTO searches (user_id, date, search) VALUES (%s, %s, %s)",
-                            (user_id, f'{date}', text))
-                        else:
-                            cur.execute("INSERT INTO searches (user_id, date, search) VALUES (%s, %s, %s)",
-                        (user_id, f'{date}', comment_text))
-                            mysql.connection.commit()
+#                     if current_date == date:
+#                         comments_data[date].extend(comment_text)
+#                     else:
+#                         current_date = date
+#                         comments_data[date] = comment_text
+#                 cur = mysql.connection.cursor()
+#                 email = session['user']['email']
+#                 cur.execute("SELECT id FROM users WHERE email = %s", (email,))
+#                 user_id = cur.fetchone()[0]
+#                 for date, comments_list in comments_data.items():
+#                     for comment_text in comments_list:
+#                         if isinstance(comment_text, list):  # Check if comment_text is a list
+#                             for text in comment_text:
+#                                 cur.execute("INSERT INTO searches (user_id, date, search) VALUES (%s, %s, %s)",
+#                             (user_id, f'{date}', text))
+#                         else:
+#                             cur.execute("INSERT INTO searches (user_id, date, search) VALUES (%s, %s, %s)",
+#                         (user_id, f'{date}', comment_text))
+#                             mysql.connection.commit()
 
             driver.quit()
         print("Browser closed")
@@ -1253,7 +1272,7 @@ def calculate_similarity_percentage(file1, file2):
 
 def pourcentage():
     file_path_facebook = 'facebook.txt'
-    file_path_ideal = 'Ideal1.txt'
+    file_path_ideal = 'Ideal.txt'
 
     # Read the contents of the files
     facebook_content = read_file(file_path_facebook)
@@ -1333,25 +1352,25 @@ def pourcentage():
                         mysql.connection.commit()
                         break  # Break once a negative word is found in the comment
             
-            cur.execute("SELECT date, search FROM searches WHERE user_id = %s",(user_id,))
-            comments_data = cur.fetchall()
+            # cur.execute("SELECT date, search FROM searches WHERE user_id = %s",(user_id,))
+            # comments_data = cur.fetchall()
 
-            # Load negative/hate speech terms from a text file
-            with open('negative_words.txt', 'r') as file:
-                negative_words = file.read().splitlines()
+            # # Load negative/hate speech terms from a text file
+            # with open('negative_words.txt', 'r') as file:
+            #     negative_words = file.read().splitlines()
 
-            # Iterate through comments to detect negative/hate speech
-            for date, comment_text in comments_data:
-                for word in negative_words:
-                    if word in comment_text:
-                        # Save detected comments to the 'menaces' table
-                        cur.execute("INSERT INTO menaces (user_id, table_name, date, comment) VALUES (%s, %s, %s, %s)",
-                                    (user_id, 'search', date, comment_text))
-                        mysql.connection.commit()
-                        break  # Break once a negative word is found in the comment
+            # # Iterate through comments to detect negative/hate speech
+            # for date, comment_text in comments_data:
+            #     for word in negative_words:
+            #         if word in comment_text:
+            #             # Save detected comments to the 'menaces' table
+            #             cur.execute("INSERT INTO menaces (user_id, table_name, date, comment) VALUES (%s, %s, %s, %s)",
+            #                         (user_id, 'search', date, comment_text))
+            #             mysql.connection.commit()
+            #             break  # Break once a negative word is found in the comment
             
-            cur.execute("SELECT date, post_content FROM posts WHERE user_id = %s",(user_id,))
-            comments_data = cur.fetchall()
+            # cur.execute("SELECT date, post_content FROM posts WHERE user_id = %s",(user_id,))
+            # comments_data = cur.fetchall()
 
             # Load negative/hate speech terms from a text file
             with open('negative_words.txt', 'r') as file:
